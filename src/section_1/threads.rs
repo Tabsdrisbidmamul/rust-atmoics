@@ -1,13 +1,13 @@
 use std::thread;
 
 pub fn thread_main() {
-    // let t1 = thread::spawn(f);
-    // let t2 = thread::spawn(f);
+    let t1 = thread::spawn(f);
+    let t2 = thread::spawn(f);
 
-    // println!("Hello from the main thread");
+    println!("Hello from the main thread");
 
-    // t1.join().unwrap();
-    // t2.join().unwrap();
+    t1.join().unwrap();
+    t2.join().unwrap();
 
     let numbers = Vec::from_iter(0..=100);
 
@@ -18,7 +18,6 @@ pub fn thread_main() {
     });
 
     let average = t.join().unwrap();
-
     println!("average {average}");
 
     let numbers = vec![1, 2, 3];
@@ -37,7 +36,7 @@ pub fn thread_main() {
     });
 }
 
-fn _f() {
+fn f() {
     println!("Hello from another thread!");
 
     let id = thread::current().id();

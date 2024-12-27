@@ -1,4 +1,4 @@
-use std::{sync::Mutex, thread};
+use std::{sync::Mutex, thread, time::Duration};
 
 /**
  * A typical mutex has methods lock() and unlock(), but in rust there is only lock(). This returns a guard, which guarantees that when dropped (dealloc) that the lock will on the mutex will be unlocked and the next thread in the pool will have access to the the mutex lock
@@ -16,6 +16,9 @@ pub fn mutex_guard() {
                 for _ in 0..100 {
                     *guard += 1;
                 }
+                // good practices with using mutexes and locks, the idea that having each thread to wait for 1 second whilst it may have the lock defats the purpose of having the mutex if everything has to happen serially. Dropping the lock (guard) releases the mutex for another thread to do work, whilst the thread that dropped the lock will pause for one second, but this is separate from the other threads waiting for the lock
+                drop(guard);
+                thread::sleep(Duration::from_secs(1));
             });
         }
     });

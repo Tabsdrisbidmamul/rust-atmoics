@@ -24,8 +24,6 @@ use std::{
  * Data races: specific type of race condition that occurs in multi-threaded programs, where 2 or more threads are trying to access shared memory. At lease one is a write. So bank account update and read being inconsistent.
  */
 
-static INIT: OnceLock<u64> = OnceLock::new();
-
 pub fn lazy_init() -> u64 {
     // default 0, but its non-zero value
     static VALUE: AtomicU64 = AtomicU64::new(0);
@@ -40,6 +38,7 @@ pub fn lazy_init() -> u64 {
 }
 
 pub fn lazy_init_once_lock() {
+    static INIT: OnceLock<u64> = OnceLock::new();
     let handles: Vec<_> = (0..5)
         .map(|_| {
             return thread::spawn(|| {

@@ -5,7 +5,9 @@ use rust_atomics::section_1::{
 };
 
 #[allow(unused)]
-use rust_atomics::section_2::stop_atomic_main;
+use rust_atomics::section_2::{
+    lazy_init, lazy_init_once_lock, progress_reporting, stop_atomic_main,
+};
 
 fn main() {
     // ------section 1------
@@ -19,5 +21,8 @@ fn main() {
     // thread_condvar_mutex();
 
     // ------section 2------
-    stop_atomic_main();
+    // stop_atomic_main();
+    // progress_reporting();
+    // lazy_init();
+    lazy_init_once_lock();
 }

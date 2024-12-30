@@ -7,7 +7,7 @@ use rust_atomics::section_1::{
 #[allow(unused)]
 use rust_atomics::section_2::{
     lazy_init, lazy_init_once_lock, progress_reporting, progress_reporting_increment,
-    stop_atomic_main,
+    statistics_progress, stop_atomic_main,
 };
 
 fn main() {
@@ -26,5 +26,6 @@ fn main() {
     // progress_reporting();
     // lazy_init();
     // lazy_init_once_lock();
-    progress_reporting_increment();
+    // progress_reporting_increment();
+    statistics_progress();
 }

@@ -10,6 +10,9 @@ use rust_atomics::section_2::{
     statistics_progress, stop_atomic_main,
 };
 
+#[allow(unused)]
+use rust_atomics::section_3::{get_pointer_data_lazy_init, release_acquire_example};
+
 fn main() {
     // ------section 1------
     // thread_main();
@@ -27,5 +30,9 @@ fn main() {
     // lazy_init();
     // lazy_init_once_lock();
     // progress_reporting_increment();
-    statistics_progress();
+    // statistics_progress();
+
+    // ------section 3------
+    // release_acquire_example();
+    dbg!(get_pointer_data_lazy_init());
 }

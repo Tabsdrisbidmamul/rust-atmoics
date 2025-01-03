@@ -18,6 +18,12 @@ pub struct Data {
  * p. 85 Rust Atomics
  *
  * This shows an illustration of the thread race and how the allocation and deallocation is working with Box.
+ *
+ * Here we can say that
+ * - release ordering prevents the initialised data from being reordered with the store operation that shares the pointer to other threads.
+ * - acquire ordering prevents reordering that would cause data to be accessed before the pointer is loaded
+ *
+ *
  */
 
 pub fn get_pointer_data_lazy_init() -> &'static Data {

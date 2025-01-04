@@ -11,7 +11,9 @@ use rust_atomics::section_2::{
 };
 
 #[allow(unused)]
-use rust_atomics::section_3::{get_pointer_data_lazy_init, release_acquire_example};
+use rust_atomics::section_3::{
+    get_pointer_data_lazy_init, release_acquire_example, seq_cst_ordering,
+};
 
 fn main() {
     // ------section 1------
@@ -34,5 +36,6 @@ fn main() {
 
     // ------section 3------
     // release_acquire_example();
-    dbg!(get_pointer_data_lazy_init());
+    // dbg!(get_pointer_data_lazy_init());
+    seq_cst_ordering();
 }

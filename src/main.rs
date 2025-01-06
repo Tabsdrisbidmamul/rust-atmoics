@@ -12,7 +12,7 @@ use rust_atomics::section_2::{
 
 #[allow(unused)]
 use rust_atomics::section_3::{
-    get_pointer_data_lazy_init, release_acquire_example, seq_cst_ordering,
+    fence_sitting, get_pointer_data_lazy_init, release_acquire_example, seq_cst_ordering,
 };
 
 fn main() {
@@ -37,5 +37,6 @@ fn main() {
     // ------section 3------
     // release_acquire_example();
     // dbg!(get_pointer_data_lazy_init());
-    seq_cst_ordering();
+    // seq_cst_ordering();
+    // fence_sitting();
 }

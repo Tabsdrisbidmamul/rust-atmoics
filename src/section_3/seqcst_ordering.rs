@@ -43,6 +43,7 @@ pub fn seq_cst_ordering() {
         A.store(true, SeqCst);
         if !B.load(SeqCst) {
             unsafe {
+                #[allow(static_mut_refs)]
                 S.push('!');
             }
         }
@@ -52,6 +53,7 @@ pub fn seq_cst_ordering() {
         B.store(true, SeqCst);
         if !A.load(SeqCst) {
             unsafe {
+                #[allow(static_mut_refs)]
                 S.push('!');
             }
         }
@@ -60,5 +62,8 @@ pub fn seq_cst_ordering() {
     a.join().unwrap();
     b.join().unwrap();
 
-    println!("S is {:?}", unsafe { &S });
+    println!("S is {:?}", unsafe {
+        #[allow(static_mut_refs)]
+        &S
+    });
 }

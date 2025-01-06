@@ -1,3 +1,5 @@
+**Remember, memory ordering does not affect speed (whilst it may seem correlated it is not), it only defines when things happen. Hence, it is called memory ordering, and not memory timing or execution timing.**
+
 # Relaxed
 
 _Definition_: No synchronization or ordering guarantees. Operations happen at some point, but not necessarily in program order.
@@ -120,3 +122,65 @@ From top to bottom, top being most performant but less synch, and bottom being l
 | Release  | Writes before `store(Release)` are visible to `load(Acquire)` in other threads.  | Release shared data                           |
 | Acquire  | Reads after `load(Acquire)` see writes from a `store(Release)` in other threads. | Synchronising with Release                    |
 | SeqCst   | Global ordering of all atomic operations                                         | Simplest but slowest use case for correctness |
+
+# Fences
+
+The last of memory ordering, this `std::sync::atomic::fence` provides memory constraint and ordering for non-atomic data. These act as a barrier for when mutating non-atomic data, and using an atomic flag.
+
+The example below shows that we have an `AtomicBool` flag, and a non-atomic `Vec::<i32>`. We can't use a `Acquire` and `Release` as we did in `section_3/release_acquire.rs`. The fence does:
+
+- Allows us to constrain and make certain that `reader` thread will see the change to `data` when `ready` is true
+
+```rust
+use std::sync::atomic::{AtomicBool, fence, Ordering};
+use std::thread;
+
+fn main() {
+    // Shared flag and data
+    let ready = AtomicBool::new(false);
+    let mut data = vec![0; 10]; // non-atmoic data
+
+    // Writer thread
+    let writer = thread::spawn({
+        let ready = &ready;
+        move || {
+            for i in 0..10 {
+                data[i] = i + 1;
+            }
+
+            // Use a release fence to ensure writes to `data` are visible before updating `ready`
+            fence(Ordering::Release);
+            ready.store(true, Ordering::Relaxed);
+        }
+    });
+
+    // Reader thread
+    let reader = thread::spawn({
+        let ready = &ready;
+        move || {
+            while !ready.load(Ordering::Acquire) {}
+
+            // Use an acquire fence to ensure reads to `data` occur after `ready` is seen as true
+            fence(Ordering::Acquire);
+            println!("Data: {:?}", data);
+        }
+    });
+
+    writer.join().unwrap();
+    reader.join().unwrap();
+}
+```
+
+# When to use Fences
+
+## Summary
+
+- Use fences for low-level, performance-critical scenarios where you can carefully control memory ordering and avoid race conditions.
+
+- Use mutexes for general-purpose synchronization when simplicity, safety, and correctness are more important than raw performance.
+
+The gist is that fences provided more control on memory ordering and are non-blocking. Great for high-performance applications.
+
+Downside is that it is harder to read/ build a mental model on. Making it harder to debug data races.
+
+Mutexes are simpler and guarantee consistency, but at the cost of system calls, context switching and kernel-level synchronisation.

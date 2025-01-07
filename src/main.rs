@@ -15,6 +15,9 @@ use rust_atomics::section_3::{
     fence_sitting, get_pointer_data_lazy_init, release_acquire_example, seq_cst_ordering,
 };
 
+#[allow(unused)]
+use rust_atomics::section_4::spin_lock_main;
+
 fn main() {
     // ------section 1------
     // thread_main();
@@ -39,4 +42,7 @@ fn main() {
     // dbg!(get_pointer_data_lazy_init());
     // seq_cst_ordering();
     // fence_sitting();
+
+    // ------section 4------
+    // spin_lock_main();
 }

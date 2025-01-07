@@ -7,7 +7,7 @@ use std::{
 
 pub struct Channel<T> {
     message: UnsafeCell<MaybeUninit<T>>,
-    in_use: AtomicBool, // once set it actually is never reset for this dummy application p.93-94 uses an AtomicU8, and uses an enum to create a finite state machine which will stop this error
+    in_use: AtomicBool, // once set it actually is never reset (hence why its a one-off channel) p.93-94 uses an AtomicU8, and uses an enum to create a finite state machine which will stop this error
     ready: AtomicBool,
 }
 

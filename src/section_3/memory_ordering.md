@@ -123,6 +123,10 @@ From top to bottom, top being most performant but less synch, and bottom being l
 | Acquire  | Reads after `load(Acquire)` see writes from a `store(Release)` in other threads. | Synchronising with Release                    |
 | SeqCst   | Global ordering of all atomic operations                                         | Simplest but slowest use case for correctness |
 
+## Order of operations
+
+As long as there is a Release and Acquire pair/ SeqCst. Then it doesn't matter how many Relaxed orderings you have, all threads will see the Relaxed updates when Release is stored, or Acquire is loaded.
+
 # Fences
 
 The last of memory ordering, this `std::sync::atomic::fence` provides memory constraint and ordering for non-atomic data. These act as a barrier for when mutating non-atomic data, and using an atomic flag.

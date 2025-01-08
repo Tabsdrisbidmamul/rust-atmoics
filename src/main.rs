@@ -16,7 +16,10 @@ use rust_atomics::section_3::{
 };
 
 #[allow(unused)]
-use rust_atomics::section_4::{channel_one_off_main, channel_send_receive, spin_lock_main};
+use rust_atomics::section_4::{
+    channel_avoid_borrowing_main, channel_blocking_main, channel_one_off_main,
+    channel_send_receive, spin_lock_main,
+};
 
 fn main() {
     // ------section 1------
@@ -46,5 +49,7 @@ fn main() {
     // ------section 4------
     // spin_lock_main();
     // channel_one_off_main();
-    channel_send_receive();
+    // channel_send_receive();
+    // channel_avoid_borrowing_main();
+    channel_blocking_main();
 }

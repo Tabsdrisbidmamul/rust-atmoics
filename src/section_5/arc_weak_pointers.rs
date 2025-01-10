@@ -40,6 +40,7 @@ unsafe impl<T: Sync + Send> Send for Weak<T> {}
 unsafe impl<T: Sync + Send> Sync for Weak<T> {}
 
 impl<T> Arc<T> {
+    #[allow(unused)]
     pub fn new(data: T) -> Arc<T> {
         Arc {
             weak: Weak {
@@ -91,6 +92,7 @@ impl<T> Arc<T> {
     ///
     /// No need to decrement the data_ref_count, this is a constructor method which will take in an Arc and create a Weak clone.
     ///
+    #[allow(unused)]
     pub fn downgrade(arc: &Self) -> Weak<T> {
         arc.weak.clone()
     }
@@ -105,6 +107,7 @@ impl<T> Weak<T> {
     /// Will upgrade Weak pointer to an Arc, if T exists
     /// We do this by checking data_ref_count is greater than 0, and increment the count and return an Arc
     ///
+    #[allow(unused)]
     pub fn upgrade(&self) -> Option<Arc<T>> {
         let mut node = self.data().strong_ref_count.load(Ordering::Relaxed);
         loop {

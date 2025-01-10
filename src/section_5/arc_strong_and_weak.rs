@@ -6,6 +6,7 @@ use std::{
     sync::atomic::{fence, AtomicUsize, Ordering},
 };
 
+#[derive(Debug)]
 struct ArcData<T> {
     /// Number of `Arc`s.
     data_ref_count: AtomicUsize,
@@ -30,6 +31,7 @@ unsafe impl<T: Sync + Send> Send for Weak<T> {}
 unsafe impl<T: Sync + Send> Sync for Weak<T> {}
 
 impl<T> Arc<T> {
+    #[allow(unused)]
     pub fn new(data: T) -> Arc<T> {
         Arc {
             ptr: NonNull::from(Box::leak(Box::new(ArcData {
@@ -42,6 +44,16 @@ impl<T> Arc<T> {
 
     fn data(&self) -> &ArcData<T> {
         unsafe { self.ptr.as_ref() }
+    }
+
+    #[allow(unused)]
+    pub fn weak_count(&self) -> usize {
+        unsafe { self.ptr.as_ref().alloc_ref_count.load(Ordering::Acquire) }
+    }
+
+    #[allow(unused)]
+    pub fn strong_count(&self) -> usize {
+        unsafe { self.ptr.as_ref().data_ref_count.load(Ordering::Acquire) }
     }
 
     #[allow(unused)]
@@ -109,6 +121,7 @@ impl<T> Weak<T> {
         unsafe { self.ptr.as_ref() }
     }
 
+    #[allow(unused)]
     pub fn upgrade(&self) -> Option<Arc<T>> {
         let mut n = self.data().data_ref_count.load(Ordering::Relaxed);
         loop {
@@ -171,5 +184,78 @@ impl<T> Drop for Arc<T> {
         }
 
         drop(Weak { ptr: self.ptr });
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Arc;
+    use std::{
+        sync::atomic::{AtomicUsize, Ordering},
+        thread,
+    };
+
+    static NUM_DROPS: AtomicUsize = AtomicUsize::new(0);
+
+    struct DetectDrop;
+    impl Drop for DetectDrop {
+        fn drop(&mut self) {
+            NUM_DROPS.fetch_add(1, Ordering::Relaxed);
+        }
+    }
+
+    #[test]
+    fn check_arc_is_created_and_dropped() {
+        let arc_obj = Arc::new(("hello", DetectDrop));
+        let arc_obj_clone_1 = Arc::downgrade(&arc_obj);
+        let arc_obj_clone_2 = Arc::downgrade(&arc_obj);
+
+        let t = thread::spawn(move || {
+            // weak pointer is upgradeable
+            let weak_ptr = arc_obj_clone_1.upgrade().unwrap();
+            assert_eq!(weak_ptr.0, "hello");
+        });
+
+        assert_eq!(arc_obj.0, "hello");
+        t.join().unwrap();
+
+        // arc_obj_clone_1 has been dropped, but T still exists.
+        assert_eq!(NUM_DROPS.load(Ordering::Relaxed), 0);
+        assert!(arc_obj_clone_2.upgrade().is_some());
+
+        drop(arc_obj);
+
+        // main arc has been dropped, so T is deallocated, weak pointer cannot be upgraded anymore, but ArcData.data_ref_count and alloc_ref_count still exist
+        assert_eq!(NUM_DROPS.load(Ordering::Relaxed), 1);
+        assert!(arc_obj_clone_2.upgrade().is_none());
+    }
+
+    #[test]
+    fn check_pointers_are_incrementing_correctly() {
+        let arc_obj = Arc::new("hello");
+        assert_eq!(*arc_obj, "hello");
+
+        let _arc_obj_clone_1 = arc_obj.clone();
+        assert_eq!(arc_obj.strong_count(), 2);
+
+        // Arc internally clones weak to always ensure that ArcData always lives
+        assert_eq!(arc_obj.weak_count(), 1);
+    }
+
+    #[test]
+    fn check_pointers_are_decrementing_correctly() {
+        let arc_obj = Arc::new("hello");
+        assert_eq!(*arc_obj, "hello");
+
+        let arc_obj_clone_1 = arc_obj.clone();
+        assert_eq!(arc_obj.strong_count(), 2);
+
+        // Arc internally clones weak to always ensure that ArcData always lives
+        assert_eq!(arc_obj.weak_count(), 1);
+
+        drop(arc_obj_clone_1);
+
+        assert_eq!(arc_obj.strong_count(), 1);
+        assert_eq!(arc_obj.weak_count(), 0);
     }
 }

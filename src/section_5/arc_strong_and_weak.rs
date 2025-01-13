@@ -205,7 +205,7 @@ mod tests {
     }
 
     #[test]
-    fn check_arc_is_created_and_dropped() {
+    fn arc_is_cloned_downgradeable_and_upgradeable() {
         let arc_obj = Arc::new(("hello", DetectDrop));
         let arc_obj_clone_1 = Arc::downgrade(&arc_obj);
         let arc_obj_clone_2 = Arc::downgrade(&arc_obj);
